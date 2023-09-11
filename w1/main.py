@@ -1,6 +1,3 @@
-import sys
-# Adds the parent directory to the system path so Python can check there as well for imports
-sys.path.append("..") 
 import constants
 from w1.data_processor import DataProcessor
 from pprint import pprint
@@ -47,30 +44,21 @@ def revenue_per_region(dp: DataProcessor) -> Dict:
     }
     """
     ######################################## YOUR CODE HERE ##################################################
-
     data_reader = dp.data_reader
-    # need to turn into a generator
-    data_reader_generator = (row for row in data_reader)
+    data_reader_gen = (row for row in data_reader)
 
-    # Skip first row as it's the column name header
-    _ = next(data_reader_generator)
+    # skip first row as it is the column name
+    _ = next(data_reader_gen)
 
-    # initialize the aggregate variable, an empty dictionary
+    # initialize the aggregate variable
     aggregate = dict()
 
-    # for row in tqdm(data_reader_generator): 
-    # Removed the tqdm progress output to just log the data
-    for row in (data_reader_generator): 
-        
+    for row in tqdm(data_reader_gen):
         if row[constants.OutDataColNames.COUNTRY] not in aggregate:
-            # If not in the dictionary, initialize it
             aggregate[row[constants.OutDataColNames.COUNTRY]] = dp.to_float(row['TotalPrice'])
-        # Otherwise, if in aggregate dictionary, accumulate the total price
         aggregate[row[constants.OutDataColNames.COUNTRY]] += dp.to_float(row['TotalPrice'])
-    
+
     return aggregate
-
-
     ######################################## YOUR CODE HERE ##################################################
 
 
@@ -79,19 +67,17 @@ def get_sales_information(file_path: str) -> Dict:
     dp = DataProcessor(file_path=file_path)
 
     # print stats
-    # This will print the stats of the data file
-    # dp.describe(column_names=[constants.OutDataColNames.UNIT_PRICE, constants.OutDataColNames.TOTAL_PRICE])
+    dp.describe(column_names=[constants.OutDataColNames.UNIT_PRICE, constants.OutDataColNames.TOTAL_PRICE])
 
     # return total revenue and revenue per region
     return {
-        # 'total_revenue': dp.aggregate(column_name=constants.OutDataColNames.TOTAL_PRICE),
+        'total_revenue': dp.aggregate(column_name=constants.OutDataColNames.TOTAL_PRICE),
         'revenue_per_region': revenue_per_region(dp),
         'file_name': get_file_name(file_path)
     }
 
 
 def main():
-    # Decide which directory of datasets to use (the default is the `tst` directory)
     parser = argparse.ArgumentParser(description="Choose from one of these : [tst|sml|bg]")
     parser.add_argument('--type',
                         default='tst',
