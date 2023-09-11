@@ -83,12 +83,14 @@ class Stats:
         self.update_max(val=val)
 
 
+# Takes a few arguments: file path, separator, list of columns
 class DataReader:
     def __init__(self, fp: str, sep: str, col_names: List) -> None:
         self._fp = fp
         self._sep = sep
         self._col_names = col_names
 
+    # iter method which returns a generator
     def __iter__(self) -> Generator:
         """
         Input : None
@@ -101,7 +103,9 @@ class DataReader:
         22180        , RETROSPOT LAMP , 19.96      , 4       , 79.84      , Russia
         23017        , APOTHECARY JAR , 24.96      , 1       , 24.96      , Germany
 
-        The generator function should return the rows in the below format:
+        The generator function should return the rows in the below format (dictionary):
+        - keys are a list of columns
+        - values will be values of each row from the file
         {
             'StockCode': '22180',
             'Description': 'RETROSPOT LAMP',
@@ -112,6 +116,34 @@ class DataReader:
         }
         """
     ######################################## YOUR CODE HERE ##################################################
+    
+    # output generator -- use 'yield' keyword 
+    # generate each row: dictionary comprehension
+    # Steps:
+    # 1. read the file
+    # 2. iterate over each row
+    # 3. split each row based on the separator
+    # 4. return the dictionary of each row
+    # 5. yield
+    # 6. return the generator as a dictionary in this format
+
+        # for loop iteration iterates over filepath
+        for n_row, row in enumerate(open(self._fp, "r")):
+            # for each row, split it based on iterator
+            row_vals = row.strip('\n').split(self._sep)
+
+            # create a dictionary of each 
+            # define the row_vals dictionary  
+            # Dictionary comprehension to create a dictionary out of something
+            # row_vals = [row_vals[i] for i in self._col_names]
+                # zip these 2 lists together and access them as key-value pairs
+            row_vals = { key: value for key, value in zip(self._col_names, row_vals) }
+            # Append the row number to each dictionary object
+            # row_vals['n_row'] = n_row
+
+            # return results
+            yield row_vals
+
 
     ######################################## YOUR CODE HERE ##################################################
 
@@ -121,3 +153,15 @@ class DataReader:
     def get_column_names(self):
         return self._col_names
 
+if __name__ == "__main__":
+    # Define the path to the sample data, the separator, and the columns
+    filepath = "../data/tst/2021.csv"
+    separator = ","
+    columns = ['StockCode', 'Description', 'UnitPrice', 'Quantity', 'TotalPrice', 'Country']
+
+    # Create an instance of the DataReader
+    reader = DataReader(filepath, separator, columns)
+
+    # Loop through the generator and print each row
+    for row in reader:
+        print(row)
